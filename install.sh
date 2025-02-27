@@ -54,6 +54,11 @@ wget -O LIFTNode.zip https://studio.liftdata.ai/standalone_nodes/desktop-ubuntu-
 unzip LIFTNode.zip -d LIFTNode
 
 # Prompt user for API key
+echo "You need an API key to proceed."
+echo "🔹 Create your API key here: https://studio.liftdata.ai/api-keys"
+echo "🔹 Follow this guide on how to create an API key: https://docs.liftdata.ai/lift-ecosystem/nodes/installing-nodes"
+echo ""
+
 read -p "Enter your API key: " API_KEY
 
 # Inject API key into settings.json
@@ -93,5 +98,8 @@ echo "   docker exec -it lift screen -ls"
 echo ""
 echo "If you want to restart the node manually inside the container, use:"
 echo "   docker exec lift screen -S liftnode -dm bash -c \"cd /root/LIFTNode && ./node\""
+echo ""
+echo "To stop and remove the Docker container, use:"
+echo "   docker stop lift && docker rm lift"
 echo ""
 echo "Your LIFT Node is now set up and running!"
