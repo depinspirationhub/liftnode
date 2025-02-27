@@ -75,6 +75,7 @@ docker exec lift screen -S liftnode -dm bash -c "cd /root/LIFTNode && ./node"
 
 echo "Setup complete! Your node is now running inside the Docker container."
 echo ""
+echo "Please wait about 1 minute after running this command. The node takes time to initialize."
 echo "To view your node's output inside the running screen session, use:"
 echo "   docker exec -it lift bash -c \"screen -r liftnode\""
 echo ""
