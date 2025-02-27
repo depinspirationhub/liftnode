@@ -11,36 +11,43 @@ sudo systemctl enable docker
 sudo systemctl start docker
 docker --version
 
-# Run Ubuntu container interactively
+# Run Ubuntu container in detached mode
 echo "Setting up the Docker container..."
-docker run -it --name lift --restart always ubuntu /bin/bash << 'EOF'
-  echo "Updating container..."
-  apt-get update && apt-get upgrade -y
-  
-  echo "Installing required packages..."
-  apt-get install -y wget unzip nano screen python3-pip libgl1 libglib2.0-0
-  
-  echo "Downloading LIFT Node..."
-  wget -O LIFTNode.zip https://studio.liftdata.ai/standalone_nodes/desktop-ubuntu-24.04-X64.zip
-  unzip LIFTNode.zip -d LIFTNode
+docker run -d --name lift --restart always ubuntu sleep infinity
 
-  # Prompt user for API key
-  read -p "Enter your API key: " API_KEY
+# Wait for the container to start
+sleep 5
 
-  # Inject API key into settings.json
-  echo "{
-    \"api_key\": \"$API_KEY\"
-  }" > LIFTNode/settings.json
+# Install dependencies inside the container
+echo "Installing dependencies inside the container..."
+docker exec lift apt-get update
+docker exec lift apt-get install -y wget unzip nano screen python3-pip libgl1 libglib2.0-0
 
-  echo "Installing Python dependencies..."
-  pip3 install --break-system-packages opencv-python-headless
+# Download LIFT Node files
+echo "Downloading LIFT Node..."
+wget -O LIFTNode.zip https://studio.liftdata.ai/standalone_nodes/desktop-ubuntu-24.04-X64.zip
+unzip LIFTNode.zip -d LIFTNode
 
-  echo "Starting a screen session for the node..."
-  screen -S lift -dm bash -c "cd LIFTNode && ./node"
+# Prompt user for API key
+read -p "Enter your API key: " API_KEY
 
-  echo "Setup complete! Your node is now running."
-  echo "To check logs, type: screen -r lift"
-EOF
+# Inject API key into settings.json
+echo "{
+  \"api_key\": \"$API_KEY\"
+}" > LIFTNode/settings.json
 
-# Let the user know they can reattach to the screen session
-echo "To enter the container later, run: docker exec -it lift bash"
+# Copy files into the container
+echo "Copying LIFT Node files into the container..."
+docker cp LIFTNode lift:/root/LIFTNode
+
+# Install Python dependencies inside the container
+echo "Installing Python dependencies inside the container..."
+docker exec lift pip3 install --break-system-packages opencv-python-headless
+
+# Start the node inside the container in a screen session
+echo "Starting the LIFT Node inside Docker..."
+docker exec lift screen -dmS lift bash -c "cd /root/LIFTNode && ./node"
+
+echo "Setup complete! Your node is now running inside the Docker container."
+echo "You can check logs using: docker logs lift"
+echo "To enter the container and interact with the node, run: docker exec -it lift bash"
