@@ -1,5 +1,26 @@
 #!/bin/bash
 
+# Disclaimer
+echo "************************************************************"
+echo "* DISCLAIMER:                                              *"
+echo "* This script is created by DEPINspirationHUB and is      *"
+echo "* partially AI-generated. It is provided AS-IS without    *"
+echo "* any warranties or guarantees. Use at your own risk.     *"
+echo "* I (DEPINspirationHUB) will not be held liable for any   *"
+echo "* issues, damages, or losses caused by running this script. *"
+echo "************************************************************"
+
+# Prompt user to agree to the disclaimer
+read -p "Do you agree to proceed? (y/n): " AGREEMENT
+
+# Check user input
+if [[ "$AGREEMENT" != "y" ]]; then
+    echo "You have declined the agreement. Exiting script."
+    exit 1
+fi
+
+echo "Proceeding with the setup..."
+
 # Update and install dependencies
 echo "Updating system and installing required packages..."
 sudo apt-get update && sudo apt-get upgrade -y
