@@ -11,37 +11,36 @@ sudo systemctl enable docker
 sudo systemctl start docker
 docker --version
 
-# Run Ubuntu container with Docker
+# Run Ubuntu container interactively
 echo "Setting up the Docker container..."
-docker run -it --name lift --restart always ubuntu /bin/bash
+docker run -it --name lift --restart always ubuntu /bin/bash << 'EOF'
+  echo "Updating container..."
+  apt-get update && apt-get upgrade -y
+  
+  echo "Installing required packages..."
+  apt-get install -y wget unzip nano screen python3-pip libgl1 libglib2.0-0
+  
+  echo "Downloading LIFT Node..."
+  wget -O LIFTNode.zip https://studio.liftdata.ai/standalone_nodes/desktop-ubuntu-24.04-X64.zip
+  unzip LIFTNode.zip -d LIFTNode
 
-# Download and set up LIFT Node
-echo "Downloading LIFT Node..."
-wget -O LIFTNode.zip https://studio.liftdata.ai/standalone_nodes/desktop-ubuntu-24.04-X64.zip
-unzip LIFTNode.zip -d LIFTNode
+  # Prompt user for API key
+  read -p "Enter your API key: " API_KEY
 
-# Prompt user for API key
-read -p "Enter your API key: " API_KEY
+  # Inject API key into settings.json
+  echo "{
+    \"api_key\": \"$API_KEY\"
+  }" > LIFTNode/settings.json
 
-# Insert API key into settings.json
-echo "Configuring settings.json with your API key..."
-echo "{
-  \"api_key\": \"$API_KEY\"
-}" > LIFTNode/settings.json
+  echo "Installing Python dependencies..."
+  pip3 install --break-system-packages opencv-python-headless
 
-# Navigate to the LIFTNode directory
-cd LIFTNode
+  echo "Starting a screen session for the node..."
+  screen -S lift -dm bash -c "cd LIFTNode && ./node"
 
-# Start a new screen session
-echo "Creating a new screen session for the node..."
-screen -dmS lift
+  echo "Setup complete! Your node is now running."
+  echo "To check logs, type: screen -r lift"
+EOF
 
-# Install Python dependencies
-echo "Installing Python dependencies..."
-pip3 install --break-system-packages opencv-python-headless
-
-# Start the node
-echo "Starting the LIFT Node..."
-./node
-
-echo "Setup complete! Your node is now running."
+# Let the user know they can reattach to the screen session
+echo "To enter the container later, run: docker exec -it lift bash"
